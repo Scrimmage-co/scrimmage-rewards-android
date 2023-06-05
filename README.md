@@ -30,6 +30,8 @@ Follow the steps below to integrate the Scrimmage Rewards program into your Andr
    of the WebView to `true`. This will ensure that the JavaScript code used
    by the Scrimmage Rewards program can be executed.
 
+   Check [MainActivity.kt](./app/src/main/java/co/scrimmage/rewards/androidexample/MainActivity.kt) for example code.
+
 3. **Add token retrieval logic for user authentication**
 
    The Scrimmage Rewards program requires a valid token to authenticate
