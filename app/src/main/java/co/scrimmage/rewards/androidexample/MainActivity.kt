@@ -1,7 +1,9 @@
 package co.scrimmage.rewards.androidexample
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
+import android.webkit.JavascriptInterface
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +14,7 @@ import androidx.compose.ui.Modifier
 import co.scrimmage.rewards.androidexample.ui.theme.ScrimmageRewardsExampleTheme
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.material3.Text
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.runtime.*
 import com.google.gson.Gson
@@ -37,6 +40,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun WebScreen(url: String) {
     var token by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
 
     LaunchedEffect(key1 = true) {
         // Fetch the token
@@ -51,8 +55,23 @@ fun WebScreen(url: String) {
                 webViewClient = WebViewClient()
                 val urlWithToken = "$url?token=$token"
                 loadUrl(urlWithToken)
+
+                // Add the JavaScript interface to handle messages
+                addJavascriptInterface(JavaScriptInterface {
+                    // Handle the received message
+                    message = it
+                }, "Android")
+
+                WebView.setWebContentsDebuggingEnabled(true);
+                // You can send messages from JavaScript using "window.Android.handleMessage('your_message')"
             }
         })
+
+        if (message.isNotEmpty()) {
+            // Show on UI
+
+            Text(text = message)
+        }
     }
 }
 
@@ -78,3 +97,11 @@ suspend fun fetchToken(): TokenResponse? = withContext(Dispatchers.IO) {
 
 
 data class TokenResponse(val token: String)
+
+class JavaScriptInterface(private val onMessageReceived: (String) -> Unit) {
+    @JavascriptInterface
+    fun handleMessage(message: String) {
+        // Handle the received message here
+        onMessageReceived(message)
+    }
+}
